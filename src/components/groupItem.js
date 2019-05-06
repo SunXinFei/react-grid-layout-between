@@ -45,19 +45,17 @@ const groupItemTarget = {
       const groupItemBoundingRect = findDOMNode(component).getBoundingClientRect();
       const groupItemX = groupItemBoundingRect.left;
       const groupItemY = groupItemBoundingRect.top;
-      // console.log(dragItem, hoverItem, x - groupItemX, y - groupItemY);
-      // return;
       props.moveCardInGroupItem(dragItem, hoverItem, x - groupItemX, y - groupItemY);
     }
   },
   drop(props, monitor, component) {
     const dragItem = monitor.getItem();
     const dropItem = props;
-    if (dragItem.type === 'group') {
+    if (dragItem.type === 'group') {//释放的分组对象
       props.onDrop(dragItem, dropItem);
-    } else if (dragItem.type === 'card') {
+    } else if (dragItem.type === 'card') {//释放的分组内的卡片
       props.onCardDropInGroupItem(dragItem, dropItem);
-    } else if (dragItem.type === 'cardlist') {
+    } else if (dragItem.type === 'cardlist') {//释放的Sider区域的卡片
       props.onCardListDropInGroupItem(dragItem, dropItem);
     }
   }
@@ -70,7 +68,17 @@ class Demo extends Component {
       
     };
   }
-
+  componentDidMount() {
+		let clientWidth;
+		const containerDom = document.querySelector('#card-container');
+		if (containerDom) {
+			clientWidth = containerDom.clientWidth;
+		}
+		if (this.props.layout.containerWidth !== clientWidth) {
+			this.props.handleLoad();
+			// console.log('handle');
+		}
+	}
   //创建卡片
 	createCards(cards, groupID, index) {
 		let itemDoms = [];

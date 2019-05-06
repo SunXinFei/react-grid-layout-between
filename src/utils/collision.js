@@ -29,30 +29,51 @@ export const getFirstCollison = (layout, item) => {
 	return null;
 };
 /**
- * 布局检测，递归检测移动过的item和其他item有没有碰撞，如果有Y坐标下移
- * @param {Array} layout 
- * @param {Object} layoutItem 
- * @param {String} cardID 
- * @param {String} fristItemID 
+ * 布局检测，递归检测移动过的item和其他item有没有碰撞，如果有Y坐标下移/X坐标右移
+ * @param {Array} layout
+ * @param {Object} layoutItem
+ * @param {String} cardID
+ * @param {String} fristItemID
+ * @param {String} compactType ('vertical' | 'horizontal') = 'vertical';
  * @returns {Object||null} 被碰撞的item或者null
  */
-export const layoutCheck = (function() {
-	const _layoutCheck = function(layout, layoutItem, cardID, fristItemID) {
+export const layoutCheck = (function () {
+	const _layoutCheck = function (
+		layout,
+		layoutItem,
+		cardID,
+		fristItemID,
+		compactType = 'vertical'
+	) {
 		let keyArr = [];
 		let movedItem = [];
-
+		let axis = 'gridx';
+		if(compactType === "vertical"){
+			axis = "gridy"
+		}
+		
 		let newlayout = layout.map((item, index) => {
 			if (item.id !== cardID) {
 				if (collision(item, layoutItem)) {
+					//碰撞检测，是否有方块和当前卡片有位置碰撞
 					keyArr.push(item.id);
-
-					let offsetY = item.gridy + 1;
+					let offsetXY = item[axis] + 1;
 					// 移动模块位于循环检测方块中
-					if (layoutItem.gridy > item.gridy && layoutItem.gridy < item.gridy + item.height) {
-						offsetY = item.gridy;
+					let widthOrHeight = 0;
+					if (axis === "gridx") {
+						widthOrHeight = item.width;
+					} else {
+						widthOrHeight = item.height;
 					}
-
-					const newItem = { ...item, gridy: offsetY };
+					//判断当前卡片的坐标和目标卡片加上宽度/高度是否有重叠，防止重叠产生
+					if (
+						layoutItem[axis] > item[axis] &&
+						layoutItem[axis] < item[axis] + widthOrHeight
+					) {
+						offsetXY = item[axis];
+					}
+					let newItem = { ...item };
+					newItem[axis] = offsetXY;
 					movedItem.push(newItem);
 					return newItem;
 				}
@@ -61,8 +82,15 @@ export const layoutCheck = (function() {
 			}
 			return item;
 		});
+		//循环所有移动过的卡片，通过碰撞检测影响的相关卡片，全部进行横坐标/纵坐标偏移
 		for (let c = 0, length = movedItem.length; c < length; c++) {
-			newlayout = _layoutCheck(newlayout, movedItem[c], keyArr[c], fristItemID);
+			newlayout = _layoutCheck(
+				newlayout,
+				movedItem[c],
+				keyArr[c],
+				fristItemID,
+				axis
+			);
 		}
 
 		return newlayout;

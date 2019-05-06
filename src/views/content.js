@@ -12,6 +12,7 @@ class MyContent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			compactType: 'horizontal',//('vertical' | 'horizontal') = 'vertical'
 			layout: {
 				containerWidth: 1200,
 				containerHeight: 300,
@@ -70,23 +71,35 @@ class MyContent extends Component {
 			]
 		};
 	}
-	//拖拽中卡片在组上移动
+	/*
+	 * 工作桌面 用户桌面设置 页面
+	 * 关于卡片在组内的操作
+	 */
+	/**
+	 * 拖拽中卡片在组上移动
+	 * @param {Object} dragItem 拖拽中的对象
+	 * @param {Object} hoverItem 拖拽中鼠标悬浮的对象
+	 * @param {Number} x 当前元素所在的网页的x轴位置，单位为px
+	 * @param {Number} y 当前元素所在的网页的y轴位置，单位为px
+	**/
 	moveCardInGroupItem = (dragItem, hoverItem, x, y) => {
-		let { groups, shadowCard } = this.state;
+		let groups = this.state.groups;
+		let shadowCard = this.state.shadowCard;
 		const { margin, containerWidth, col, rowHeight } = this.state.layout;
+		//计算当前所在的网格坐标
 		const { gridX, gridY } = utils.calGridXY(x, y, shadowCard.width, margin, containerWidth, col, rowHeight);
 		if (gridX === shadowCard.gridx && gridY === shadowCard.gridy) {
 			return;
 		}
 		let groupIndex = hoverItem.index;
-		//先判断组内有没有相同的appID
-		// const id = shadowCard.id;
-		// const isContain = utils.checkCardContainInGroup(groups[groupIndex], id);
+		//先判断组内是否存在相同的卡片
+		const cardid = shadowCard.id;
+		// const isContain = utils.checkCardContainInGroup(groups[groupIndex], cardid);
 
 		// if (isContain) {
 		// 	return;
 		// }
-
+		//删除阴影的卡片
 		_.forEach(groups, (g, index) => {
 			_.remove(g.cards, (a) => {
 				return a.isShadow === true;
@@ -94,74 +107,51 @@ class MyContent extends Component {
 		});
 
 		shadowCard = { ...shadowCard, gridx: gridX, gridy: gridY };
-
+		//添加阴影的卡片
 		groups[groupIndex].cards.push(shadowCard);
-
+		//获得当前分组内最新的layout布局
 		const newlayout = layoutCheck(
 			groups[groupIndex].cards,
 			shadowCard,
 			shadowCard.id,
-			shadowCard.id
+			shadowCard.id,
+			this.state.compactType
 		);
-
-		const compactedLayout = compactLayout(newlayout, shadowCard);
+		//压缩当前分组内的layout布局
+		let compactedLayout;
+		if (this.state.compactType === 'horizontal') {
+			compactedLayout = compactLayoutHorizontal(newlayout, this.state.layout.col, cardid);
+		} else if (this.state.compactType === 'vertical') {
+			compactedLayout = compactLayout(newlayout, shadowCard);
+		}
+		//更新group对象
 		groups[groupIndex].cards = compactedLayout;
-		this.setState({ shadowCard, groups })
+		this.updateShadowCard(shadowCard);
+		this.updateGroupList(groups);
 	};
-	/*
-	 * 工作桌面 用户桌面设置 页面
-	 * 关于组的操作
-	 */
-	//移动组顺序
-	moveGroupItem = (dragIndex, hoverIndex) => {
-		let { groups } = this.state;
-		groups = _.cloneDeep(groups);
-		const dragCard = groups[dragIndex];
-		groups.splice(dragIndex, 1);
-		groups.splice(hoverIndex, 0, dragCard);
-		this.setState({ groups })
-	};
-	//释放分组到分组
-	onDrop = (dragItem, dropItem) => {
-		if (dragItem.type === dropItem.type) {
-			return;
-		}
-		let { groups } = this.state;
-		groups = _.cloneDeep(groups);
-		let card;
-		let dropGroupIndex, dragCardIndex, dragCardFromGroupIndex;
-		for (let i = 0, len = groups.length; i < len; i++) {
-			if (groups[i].pk_app_group === dropItem.id) {
-				dropGroupIndex = i;
-			}
-			for (let j = 0, len2 = groups[i].cards.length; j < len2; j++) {
-				let cards = groups[i].cards;
-				if (cards[j].id === dragItem.id) {
-					card = cards[j];
-					dragCardIndex = j;
-					dragCardFromGroupIndex = i;
-				}
-			}
-		}
-		groups[dragCardFromGroupIndex].cards.splice(dragCardIndex, 1);
-		groups[dropGroupIndex].cards.push(card);
-		this.setState({ groups })
-	};
-	//释放卡片到分组
+	/**
+	 * 释放卡片到分组
+	 * @param {Object} dragItem 拖拽的卡片对象
+	 * @param {Object} dropItem 释放的目标组对象
+	**/
 	onCardDropInGroupItem = (dragItem, dropItem) => {
 		let { groups } = this.state;
 		groups = _.cloneDeep(groups);
-		const targetGroupIndex = dropItem.index;
-		const cardList = dragItem.cardList;
-
+		//将所有分组内的阴影卡片设为非阴影
 		utils.setPropertyValueForCards(groups, 'isShadow', false);
-		//目标组内重新布局
+		//目标组内重新横向压缩布局
 		_.forEach(groups, (g, targetGroupIndex) => {
-			let compactedLayout = compactLayoutHorizontal(groups[targetGroupIndex].cards, this.state.layout.col);
-			groups[targetGroupIndex].cards = compactedLayout;
-		});
+			if (this.state.compactType === 'horizontal') {
+				let compactedLayout = compactLayoutHorizontal(groups[targetGroupIndex].cards, this.state.layout.col);
+				groups[targetGroupIndex].cards = compactedLayout;
+			} else if (this.state.compactType === 'vertical') {
+				let compactedLayout = compactLayout(groups[targetGroupIndex].cards);
+				groups[targetGroupIndex].cards = compactedLayout;
+			}
 
-		this.setState({ groups, shadowCard: {} })
+		});
+		this.updateGroupList(groups);
+		this.updateShadowCard({});
 	};
 	//初始化组
 	initGroupItem(groups) {
@@ -185,7 +175,7 @@ class MyContent extends Component {
 					layout={this.state.layout}
 					updateShadowCard={this.updateShadowCard}
 					updateGroupList={this.updateGroupList}
-				// handleLoad={this.handleLoad}
+					handleLoad={this.handleLoad}
 				/>
 			);
 		});
@@ -199,66 +189,79 @@ class MyContent extends Component {
 	updateShadowCard = (shadowCard) => {
 		this.setState({ shadowCard });
 	}
+	//
+	updateLayout = (layout) => {
+		this.setState({ layout });
+	}
 	//通过Group Index获取cards
 	getCardsByGroupIndex = (groupIndex) => {
 		let { groups } = this.state;
 		return groups[groupIndex].cards;
 	};
-	//当页面加载完成，获得卡片容器宽度
-	// handleLoad = () => {
-	// 	if (!resizeWaiter) {
-	// 		resizeWaiter = true;
-	// 		setTimeout(() => {
-	// 			console.info('resize！');
-	// 			resizeWaiter = false;
-	// 			let clientWidth;
-	// 			const containerDom = document.querySelector('#card-container');
-	// 			if (containerDom) {
-	// 				clientWidth = containerDom.clientWidth;
-	// 			} else {
-	// 				const firstAddButton = document.querySelector('#first-add');
-	// 				if (firstAddButton) {
-	// 					clientWidth = firstAddButton.clientWidth - 10;
-	// 				} else {
-	// 					return;
-	// 				}
-	// 			}
-	// 			const defaultCalWidth = this.props.defaultLayout.calWidth;
-	// 			const { containerPadding, margin } = this.props.layout;
-	// 			let layout = _.cloneDeep(this.props.layout);
-	// 			const windowWidth = window.innerWidth - 60 * 2;
-	// 			const col = utils.calColCount(defaultCalWidth, windowWidth, containerPadding, margin);
-	// 			const calWidth = utils.calColWidth(clientWidth, col, containerPadding, margin);
+	// 当页面加载完成，获得卡片容器宽度
+	handleLoad = () => {
+		if (!resizeWaiter) {
+			resizeWaiter = true;
+			setTimeout(() => {
+				console.info('resize!');
+				resizeWaiter = false;
+				let clientWidth;
+				const containerDom = document.querySelector('#card-container');
+				if (containerDom) {
+					clientWidth = containerDom.clientWidth;
+				} else {
+					const firstAddButton = document.querySelector('#first-add');
+					if (firstAddButton) {
+						clientWidth = firstAddButton.clientWidth - 10;
+					} else {
+						return;
+					}
+				}
+				const defaultCalWidth = this.state.layout.calWidth;
+				const { containerPadding, margin } = this.state.layout;
+				let layout = _.cloneDeep(this.state.layout);
+				const windowWidth = window.innerWidth - 60 * 2;
+				const col = utils.calColCount(defaultCalWidth, windowWidth, containerPadding, margin);
+				const calWidth = utils.calColWidth(clientWidth, col, containerPadding, margin);
 
-	// 			let { groups } = this.props;
-	// 			groups = _.cloneDeep(groups);
-	// 			_.forEach(groups, (g) => {
-	// 				let compactedLayout = compactLayoutHorizontal(g.cards, col);
-	// 				g.cards = compactedLayout;
-	// 			});
+				let { groups } = this.state;
+				groups = _.cloneDeep(groups);
+				_.forEach(groups, (g) => {
+					let compactedLayout = compactLayoutHorizontal(g.cards, col);
+					g.cards = compactedLayout;
+				});
 
-	// 			layout.calWidth = layout.rowHeight = calWidth;
-	// 			layout.col = col;
-	// 			layout.containerWidth = clientWidth;
-	// 			this.props.updateGroupList(groups);
-	// 			this.props.updateLayout(layout);
-	// 		}, 500);
-	// 	}
-	// };
-	// componentWillUnmount() {
-	// 	window.removeEventListener('resize', this.handleLoad);
-	// 	console.log('移除window中resize fn');
-	// }
-	// componentDidMount() {
-	// 	window.addEventListener('resize', this.handleLoad);
-	// }
+				layout.calWidth = layout.rowHeight = calWidth;
+				layout.col = col;
+				layout.containerWidth = clientWidth;
+				this.updateGroupList(groups);
+				this.updateLayout(layout);
+			}, 500);
+		}
+	};
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.handleLoad);
+		console.log('移除window中resize fn');
+	}
+	componentDidMount() {
+		window.addEventListener('resize', this.handleLoad);
+	}
+	changeCompactType = () =>{
+		const { compactType: oldCompactType } = this.state;
+		const compactType =
+			oldCompactType === "horizontal"
+				? "vertical"
+				: "horizontal";
+		this.setState({ compactType });
+	}
 	render() {
-		const { groups } = this.state;
+		const { groups, compactType } = this.state;
 		return (
 			<div>
+				<button style={{ height:'30px'} } onClick={this.changeCompactType}>Change Compaction Type: <b>{compactType}</b></button>
 				{this.initGroupItem(groups)}
 			</div>
-			
+
 		);
 	}
 }
