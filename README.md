@@ -3,7 +3,7 @@ A draggable grid layout , can between two or more Layouts, for React.
 support to switch Compaction Type: horizontal || vertical.
 
 Live Demo : http://demo.sunxinfei.com/
-test123323we
+test123323we2
 ### Run Project
 ```
 npm install
