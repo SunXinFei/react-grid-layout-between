@@ -258,6 +258,7 @@ class MyContent extends Component {
 		const { groups, compactType } = this.state;
 		return (
 			<div>
+				<p>123</p>
 				<button style={{ height:'30px'} } onClick={this.changeCompactType}>Change Compaction Type: <b>{compactType}</b></button>
 				{this.initGroupItem(groups)}
 			</div>
