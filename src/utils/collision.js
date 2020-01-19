@@ -48,10 +48,10 @@ export const layoutCheck = (function () {
 		let keyArr = [];
 		let movedItem = [];
 		let axis = 'gridx';
-		if(compactType === "vertical"){
+		if (compactType === "vertical") {
 			axis = "gridy"
 		}
-		
+
 		let newlayout = layout.map((item, index) => {
 			if (item.id !== cardID) {
 				if (collision(item, layoutItem)) {

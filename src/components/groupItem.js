@@ -51,12 +51,8 @@ const groupItemTarget = {
   drop(props, monitor, component) {
     const dragItem = monitor.getItem();
     const dropItem = props;
-    if (dragItem.type === 'group') {//释放的分组对象
-      props.onDrop(dragItem, dropItem);
-    } else if (dragItem.type === 'card') {//释放的分组内的卡片
+    if (dragItem.type === 'card') {//释放的分组内的卡片
       props.onCardDropInGroupItem(dragItem, dropItem);
-    } else if (dragItem.type === 'cardlist') {//释放的Sider区域的卡片
-      props.onCardListDropInGroupItem(dragItem, dropItem);
     }
   }
 };
@@ -64,9 +60,7 @@ const groupItemTarget = {
 class Demo extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      
-    };
+    this.state = {};
   }
   componentDidMount() {
 		let clientWidth;
@@ -80,13 +74,14 @@ class Demo extends Component {
 		}
 	}
   //创建卡片
-	createCards(cards, groupID, index) {
+	createCards(cards, groupID, groups) {
 		let itemDoms = [];
 		_.forEach(cards, (c, i) => {
 			itemDoms.push(
 				<Card
 					dragCardID={-1}
           type={'card'}
+          groups = {groups}
           card={c}
 					id={c.id}
 					index={i}
@@ -112,7 +107,9 @@ class Demo extends Component {
       id,
       index,
       cards,
-      layout
+      defaultLayout,
+      layout,
+      groups
     } = this.props;
     const containerHeight = utils.getContainerMaxHeight(cards, layout.rowHeight, layout.margin);
     return connectDropTarget(
@@ -125,10 +122,12 @@ class Demo extends Component {
 							id='card-container'
 							style={{
 								height:
-									containerHeight
+									containerHeight > defaultLayout.containerHeight
+										? containerHeight
+										: defaultLayout.containerHeight
 							}}
 						>
-							{this.createCards(cards, id, index)}
+							{this.createCards(cards, id, groups)}
 						</section>
 					</div>
 				</div>

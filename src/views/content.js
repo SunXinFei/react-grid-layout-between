@@ -5,6 +5,7 @@ import { layoutCheck } from '../utils/collision';
 import { compactLayout, compactLayoutHorizontal } from '../utils/compact';
 import utils from '../utils';
 import GroupItem from '../components/groupItem';
+import mockData from '../mock/mock'
 
 let resizeWaiter = false;
 
@@ -13,6 +14,15 @@ class MyContent extends Component {
 		super(props);
 		this.state = {
 			compactType: 'horizontal',//('vertical' | 'horizontal') = 'vertical'
+			defaultLayout: {
+				containerWidth: 1200,
+				containerHeight: 300,
+				calWidth: 175,
+				rowHeight: 175,
+				col: 6,
+				margin: [10, 10],
+				containerPadding: [0, 0]
+			},
 			layout: {
 				containerWidth: 1200,
 				containerHeight: 300,
@@ -25,50 +35,7 @@ class MyContent extends Component {
 			shadowCard: {
 
 			},
-			groups: [
-				{
-					id: 0,
-					type: 'group',
-					cards: [{
-						id: 0,
-						gridx: 0,
-						gridy: 0,
-						width: 1,
-						height: 1,
-						type: 'card',
-						isShadow: false
-					}, {
-						id: 1,
-						gridx: 1,
-						gridy: 0,
-						width: 1,
-						height: 1,
-						type: 'card',
-						isShadow: false
-					}]
-				},
-				{
-					id: 1,
-					type: 'group',
-					cards: [{
-						id: 2,
-						gridx: 0,
-						gridy: 0,
-						width: 1,
-						height: 1,
-						type: 'card',
-						isShadow: false
-					}, {
-						id: 3,
-						gridx: 1,
-						gridy: 0,
-						width: 1,
-						height: 1,
-						type: 'card',
-						isShadow: false
-					}]
-				}
-			]
+			groups: mockData
 		};
 	}
 	/*
@@ -165,14 +132,13 @@ class MyContent extends Component {
 					index={i}
 					cards={g.cards}
 					length={groups.length}
-					// groupname={g.groupname}
+					groups = {groups}
 					moveCardInGroupItem={this.moveCardInGroupItem}
 					onDrop={this.onDrop}
 					onCardDropInGroupItem={this.onCardDropInGroupItem}
-					onCardListDropInGroupItem={this.onCardListDropInGroupItem}
-					moveGroupItem={this.moveGroupItem}
 					getCardsByGroupIndex={this.getCardsByGroupIndex}
 					layout={this.state.layout}
+					defaultLayout={this.state.defaultLayout}
 					updateShadowCard={this.updateShadowCard}
 					updateGroupList={this.updateGroupList}
 					handleLoad={this.handleLoad}
@@ -217,7 +183,7 @@ class MyContent extends Component {
 						return;
 					}
 				}
-				const defaultCalWidth = this.state.layout.calWidth;
+				const defaultCalWidth = this.state.defaultLayout.calWidth;
 				const { containerPadding, margin } = this.state.layout;
 				let layout = _.cloneDeep(this.state.layout);
 				const windowWidth = window.innerWidth - 60 * 2;

@@ -84,23 +84,6 @@ export const getContainerMaxHeight = (cards, rowHeight, margin) => {
 	return resultRow * rowHeight + (resultRow - 1) * margin[1] + 2 * margin[1];
 };
 
-
-//计算卡片容器的最大高度
-// export const getContainerMaxHeight = (cards, rowHeight, margin) => {
-// 	//行转列并且分组
-// 	const rowRes = _.chain(cards).sortBy([ 'gridx', 'gridy' ]).groupBy('gridx').value();
-// 	//寻找每列最后item的GridY和height的和
-// 	let endHeight = [];
-// 	_.forEach(rowRes, (r) => {
-// 		const temp = r[r.length - 1];
-// 		endHeight.push(temp.gridy + temp.height);
-// 	});
-// 	//获得最大的值
-// 	const resultRow = _.max(endHeight);
-// 	console.log(resultRow);
-// 	return resultRow * rowHeight + (resultRow - 1) * margin[1] + 2 * margin[1];
-// };
-
 /**
  * 给予一个grid的位置，算出元素具体的在容器中位置在哪里，单位是px
  * @param {Number} gridx

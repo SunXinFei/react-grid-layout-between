@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { DragSource } from 'react-dnd';
 import utils from '../utils';
+import _ from 'lodash';
 
 const noteSource = {
+  //开始拖拽，设置isShadow属性，shadowCard对象，更新groups
   beginDrag(props, monitor, component) {
     let dragCard = props.card;
 
@@ -11,62 +13,45 @@ const noteSource = {
 
 		return { id: props.id, type: props.type };
   },
+  //结束拖拽，设置isShadow属性，shadowCard对象，更新groups
   endDrag(props, monitor, component) {
-		//判断是否正常走了drop事件
+    //判断是否正常走了drop事件
 		if (!monitor.didDrop()) {
-      console.log(123123);
-			// let dragCard = props.card;
-    
-      // dragCard.isShadow = false;
-      
-			// props.updateShadowCard({});
-			// props.updateGroupList(groups);
+			let { groups, groupIndex } = props;
+			groups = _.cloneDeep(groups);
+			utils.setPropertyValueForCards(groups, 'isShadow', false);
+			props.updateShadowCard({});
+			props.updateGroupList(groups);
 		}
   }
 };
-
 class Item extends Component {
   constructor(props) {
     super(props);
   }
-  // //依靠前后props中shadowCard状态（前为空对象，后为有对象，）来判断是否为beginDrag状态，来阻止dom刷新，从而使dragLayer不会变化
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if (this.props.isChecked !== nextProps.isChecked) {
-  //     return true;
-  //   }
-  //   if (this.props.layout !== nextProps.layout) {
-  //     return true
-  //   }
-  //   if (this.props.gridx !== nextProps.gridx || this.props.gridy !== nextProps.gridy) {
-  //     return true
-  //   }
-  //   if (this.props.isShadow !== nextProps.isShadow) {
-  //     return true
-  //   }
-  //   return false;
-  // }
-  //依靠前后props的isOver来判断enter和leave，但是不好用，enter检测不精准
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.isOver && nextProps.isOver) {
-      // You can use this as enter handler
-      // console.log('card enter');
-    }
-
-    if (this.props.isOver && !nextProps.isOver) {
-      // You can use this as leave handler
-      // console.log('card leave');
-
-    }
-  }
+  //依靠前后props中shadowCard状态（前为空对象，后为有对象）来判断是否为beginDrag状态，来阻止dom刷新
+	shouldComponentUpdate(nextProps, nextState) {
+		const thisProps = this.props || {},
+			thisState = this.state || {};
+		//全等判断值为false，使用isEqual判断
+		if (!_.isEqual(this.props.layout, nextProps.layout)) {
+			return true;
+		}
+		if (this.props.gridx !== nextProps.gridx || this.props.gridy !== nextProps.gridy) {
+			return true;
+		}
+		if (this.props.isShadow !== nextProps.isShadow) {
+			return true;
+		}
+		return false;
+	}
   render() {
     const { connectDragSource, gridx, gridy, width, height, isShadow, id } = this.props;
     const { margin, rowHeight, calWidth } = this.props.layout;
     const { x, y } = utils.calGridItemPosition(gridx, gridy, margin, rowHeight, calWidth);
     const { wPx, hPx } = utils.calWHtoPx(width, height, margin, rowHeight, calWidth);
     let cardDom;
-    // if (isDragging && this.props.dragCardID === id) {
-    // 	return null;
-    // }
+    //是否为拖拽中的阴影卡片
     if (isShadow) {
       cardDom = (<div
         className='card-shadow'
