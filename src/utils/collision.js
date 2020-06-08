@@ -89,7 +89,7 @@ export const layoutCheck = (function () {
 				movedItem[c],
 				keyArr[c],
 				fristItemID,
-				axis
+				compactType
 			);
 		}
 

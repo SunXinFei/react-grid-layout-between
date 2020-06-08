@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "lodash": "^4.17.11",
+    "mockjs": "^1.1.0",
     "react": "^16.8.6",
     "react-dnd": "^2.6.0",
     "react-dnd-html5-backend": "^2.6.0",
