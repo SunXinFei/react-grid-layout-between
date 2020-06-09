@@ -11,6 +11,9 @@ feature:
 - [x] DnD card  between layouts
 
 - [ ] Drag card colliseion by gravity center
+
+bugs:
+- [ ] when 2x2 or 1x2 collosion bug
 ### Run Project
 ```
 npm install
