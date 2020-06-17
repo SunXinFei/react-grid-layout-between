@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 //自定义组件
-import { layoutCheck } from '../utils/collision';
-import { compactLayout, compactLayoutHorizontal } from '../utils/compact';
-import utils from '../utils';
-import GroupItem from '../components/groupItem';
-import mockData from '../mock/mock'
+import { layoutCheck } from '@/utils/collision';
+import { compactLayout, compactLayoutHorizontal } from '@/utils/compact';
+import utils from '@/utils';
+import GroupItem from '@/components/groupItem';
+import mockData from '@/mock/mock'
 
 let resizeWaiter = false;
 

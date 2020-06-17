@@ -4,7 +4,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext, DropTarget } from 'react-dnd';
 import { findDOMNode } from 'react-dom';
 import Card from './card';
-import utils from '../utils';
+import utils from '@/utils';
 import _ from 'lodash';
 
 const groupItemTarget = {

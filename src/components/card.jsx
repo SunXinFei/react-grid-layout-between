@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { DragSource } from 'react-dnd';
-import utils from '../utils';
+import utils from '@/utils';
 import _ from 'lodash';
 
 const noteSource = {
