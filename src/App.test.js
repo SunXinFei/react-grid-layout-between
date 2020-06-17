@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import { collision } from './utils/collision';
+import App from '@/App';
+import { collision } from '@/utils/collision';
+import Cases2Collision from '@/../test/case-collision';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
@@ -10,17 +11,9 @@ it('renders without crashing', () => {
 });
 
 test('collision interface', () => {
-  const a = {
-    gridx: 0,
-    gridy: 0,
-    width: 2,
-    height: 1
-  };
-  const b = {
-    gridx: 1,
-    gridy: 0,
-    width: 1,
-    height: 1
-  };
-  expect(collision(a,b)).toEqual(true);
+  Cases2Collision.forEach((caseData, i) => {
+    console.log(`collision${i + 1}`);
+    const {a,b} = caseData.test;
+    expect(collision(a,b)).toEqual(caseData.expect);
+  });
 });
