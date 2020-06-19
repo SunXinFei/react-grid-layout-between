@@ -117,7 +117,6 @@ export const compactLayoutHorizontal = function (layout, cols, movingCardID) {
 			sorted[i].gridx = 0;
 		}
 	}
-	let rowCount = 0;
 	//进行重新放置，移动中卡片除外
 	for (let i = 0, length = sorted.length; i < length; i++) {
 		let finished;

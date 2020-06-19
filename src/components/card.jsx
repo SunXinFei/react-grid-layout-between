@@ -17,7 +17,7 @@ const noteSource = {
   endDrag(props, monitor, component) {
     //判断是否正常走了drop事件
 		if (!monitor.didDrop()) {
-			let { groups, groupIndex } = props;
+			let { groups } = props;
 			groups = _.cloneDeep(groups);
 			utils.setPropertyValueForCards(groups, 'isShadow', false);
 			props.updateShadowCard({});
@@ -26,13 +26,8 @@ const noteSource = {
   }
 };
 class Item extends Component {
-  constructor(props) {
-    super(props);
-  }
   //依靠前后props中shadowCard状态（前为空对象，后为有对象）来判断是否为beginDrag状态，来阻止dom刷新
 	shouldComponentUpdate(nextProps, nextState) {
-		const thisProps = this.props || {},
-			thisState = this.state || {};
 		//全等判断值为false，使用isEqual判断
 		if (!_.isEqual(this.props.layout, nextProps.layout)) {
 			return true;

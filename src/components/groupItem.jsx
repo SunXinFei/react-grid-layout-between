@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 // drag && drop
-import HTML5Backend from 'react-dnd-html5-backend';
-import { DragDropContext, DropTarget } from 'react-dnd';
+import { DropTarget } from 'react-dnd';
 import { findDOMNode } from 'react-dom';
 import Card from './card';
 import utils from '@/utils';
@@ -105,7 +104,6 @@ class Demo extends Component {
       connectDropTarget,
       isOver,
       id,
-      index,
       cards,
       defaultLayout,
       layout,
@@ -141,4 +139,4 @@ function collectTarget(connect, monitor) {
   }
 }
 const Container = DropTarget('item', groupItemTarget, collectTarget)(Demo);
-export default DragDropContext(HTML5Backend)(Container);
+export default Container;

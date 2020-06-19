@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext } from 'react-dnd';
 import _ from 'lodash';
 //自定义组件
 import { layoutCheck } from '@/utils/collision';
 import { compactLayout, compactLayoutHorizontal } from '@/utils/compact';
 import utils from '@/utils';
 import GroupItem from '@/components/groupItem';
+import CustomDragLayer from '@/components/dragLayer';
 import mockData from '@/mock/mock'
 
 let resizeWaiter = false;
@@ -224,6 +227,7 @@ class MyContent extends Component {
 		const { groups, compactType } = this.state;
 		return (
 			<div>
+				<CustomDragLayer/>
 				<button style={{ height:'30px'} } onClick={this.changeCompactType}>Change Compaction Type: <b>{compactType}</b></button>
 				{this.initGroupItem(groups)}
 			</div>
@@ -232,4 +236,4 @@ class MyContent extends Component {
 	}
 }
 
-export default MyContent;
+export default DragDropContext(HTML5Backend)(MyContent);

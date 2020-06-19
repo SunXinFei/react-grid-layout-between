@@ -43,3 +43,31 @@
     }
   }
 }
+.custom-layer {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100;
+  left: -20px;
+  top: -20px;
+  .custom-layer-card-list {
+      .layer-card {
+          width: 135px;
+          height: 135px;
+          border: 1px solid rgba(204, 204, 204, 1);
+          background: #fff;
+          position: absolute;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .layer-card-span {
+              position: absolute;
+              border-radius: 50%;
+              width: 30px;
+              height: 30px;
+              display: inline-block;
+              text-align: center;
+              line-height: 30px;
+          }
+      }
+  }
+}
