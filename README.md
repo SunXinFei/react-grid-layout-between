@@ -6,11 +6,13 @@ Live Demo : http://demo.sunxinfei.com/
 
 feature:
 
-- [x] DnD card  between layouts
+- [x] DnD card between layouts
 
 - [x] switch horizontal || vertical layout
 
 - [x] auto layout when window resize
+
+- [x] add drag preview
 
 - [ ] Drag card colliseion by gravity center
 
@@ -19,6 +21,7 @@ feature:
 - [ ] add MultiDrag
 
 - [ ] get <reac-grid-layout-between /> component
+
 bugs:
 - [ ] when 2x2 or 1x2 collosion bug for horizontal
 ### Run Project
