@@ -66,6 +66,8 @@ export const layoutCheck = (function () {
 						widthOrHeight = item.height;
 					}
 					//判断当前卡片的坐标和目标卡片加上宽度/高度是否有重叠，防止重叠产生
+					//在vertical情况下，是判断类似拖拽(0,1)宽1高1的方块与(0,0)宽1高2的纵向长方形，此时的交叠，纵向长方形保持不动，
+					//在horizontal情况下，是判断类似拖拽(1,0)宽1高1的方块与(0,0)宽2高1的横向长方形，此时的交叠，横向长方形保持不动，
 					if (
 						layoutItem[axis] > item[axis] &&
 						layoutItem[axis] < item[axis] + widthOrHeight

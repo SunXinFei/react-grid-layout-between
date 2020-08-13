@@ -16,7 +16,7 @@ class MyContent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			compactType: 'horizontal',//('vertical' | 'horizontal') = 'vertical'
+			compactType: 'vertical',//('vertical' | 'horizontal') = 'vertical'
 			defaultLayout: {
 				containerWidth: 1200,
 				containerHeight: 300,
@@ -42,7 +42,6 @@ class MyContent extends Component {
 		};
 	}
 	/*
-	 * 工作桌面 用户桌面设置 页面
 	 * 关于卡片在组内的操作
 	 */
 	/**
