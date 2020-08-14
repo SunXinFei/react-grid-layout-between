@@ -69,7 +69,6 @@ class Demo extends Component {
 		}
 		if (this.props.layout.containerWidth !== clientWidth) {
 			this.props.handleLoad();
-			// console.log('handle');
 		}
 	}
   //创建卡片

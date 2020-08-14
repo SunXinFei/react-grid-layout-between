@@ -45,12 +45,9 @@ export const layoutCheck = (function () {
 		fristItemID,
 		compactType = 'vertical'
 	) {
-		let keyArr = [];
-		let movedItem = [];
-		let axis = 'gridx';
-		if (compactType === "vertical") {
-			axis = "gridy"
-		}
+		let keyArr = [],
+		movedItem = [];
+		const axis = compactType === "vertical"? "gridy": 'gridx';
 
 		let newlayout = layout.map((item, index) => {
 			if (item.id !== cardID) {
@@ -59,12 +56,7 @@ export const layoutCheck = (function () {
 					keyArr.push(item.id);
 					let offsetXY = item[axis] + 1;
 					// 移动模块位于循环检测方块中
-					let widthOrHeight = 0;
-					if (axis === "gridx") {
-						widthOrHeight = item.width;
-					} else {
-						widthOrHeight = item.height;
-					}
+					const widthOrHeight = axis === "gridx"? item.width: item.height;
 					//判断当前卡片的坐标和目标卡片加上宽度/高度是否有重叠，防止重叠产生
 					//在vertical情况下，是判断类似拖拽(0,1)宽1高1的方块与(0,0)宽1高2的纵向长方形，此时的交叠，纵向长方形保持不动，
 					//在horizontal情况下，是判断类似拖拽(1,0)宽1高1的方块与(0,0)宽2高1的横向长方形，此时的交叠，横向长方形保持不动，

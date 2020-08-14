@@ -89,28 +89,19 @@ const getSpaceArea = (finishedLayout, item, cols) => {
  * 需优化的地方：如果移动中的卡片坐标应该一直在一个区域范围内，而不应该任意位置拖拽
  * @param {Array} layout
  * @param {Int} cols
- * @param {String} movingCardID 移动中的元素
- * @returns {layout} 最新layout布局
+ * @param {Object} moveCard 移动中的元素
+ * @returns {Array} 最新layout布局
  */
-export const compactLayoutHorizontal = function (layout, cols, movingCardID) {
+export const compactLayoutHorizontal = function (layout, cols, moveCard) {
 	let sorted = sortLayout(layout);
 	const compareList = [];
-	const needCompact = Array(layout.length);
-	let arr = [];
-	let moveCard;
-	//进行坐标重置，移动中的卡片除外
-	for (let i = 0; i < sorted.length; i++) {
-		if (movingCardID === sorted[i].id) {
-			moveCard = sorted[i];
-			continue;
-		}
-		arr.push(sorted[i]);
-	}
-	//获得当前组内的最大的y值，并赋值给移动卡片，防止分组Y值无限变大
+	const needCompact = new Array(layout.length);
+	const movingCardID = moveCard ? moveCard.id : null;
+	//获得当前组内的最大的y值，并赋值给移动卡片，防止group的Y值（高度）无限变大
 	if (moveCard) {
-		moveCard.gridy = Math.min(layoutBottom(arr), moveCard.gridy);
+		moveCard.gridy = Math.min(layoutBottom(sorted), moveCard.gridy);
 	}
-	//将非移动的卡片进行坐标重置
+	//将非移动中的卡片进行坐标重置
 	for (let i = 0; i < sorted.length; i++) {
 		if (movingCardID !== sorted[i].id) {
 			sorted[i].gridy = 0;
@@ -120,11 +111,11 @@ export const compactLayoutHorizontal = function (layout, cols, movingCardID) {
 	//进行重新放置，移动中卡片除外
 	for (let i = 0, length = sorted.length; i < length; i++) {
 		let finished;
-		if (movingCardID === sorted[i].id) {
-			finished = sorted[i];
-		} else {
-			finished = getSpaceArea(compareList, sorted[i], cols);
-		}
+		// if (movingCardID === sorted[i].id) {
+		// finished = sorted[i];
+		// } else {
+		finished = getSpaceArea(compareList, sorted[i], cols);
+		// }
 		compareList.push(finished);
 		needCompact[i] = finished;
 	}
@@ -157,34 +148,3 @@ export const compactLayoutHorizontal = function (layout, cols, movingCardID) {
 // 	}
 // 	return needCompact;
 // };
-
-// export const compactLayoutHorizontal = function( layout, cols ){
-//     let sorted = sortLayout(layout);
-//     const compareList = []
-//     const needCompact = Array(layout.length)
-
-//     for(let i=0;i<sorted.length;i++){
-//         sorted[i].gridy = 0;
-//         sorted[i].gridx = 0;
-//     }
-//     let rowCount = 0;
-//     for(let i=0, length=sorted.length; i<length; i++){
-//         //获得某行已存在卡片的最大累加宽度
-//         const compareListRow = _.filter(compareList,(c)=>{
-//             return c.gridy == rowCount
-//         });
-//         const ll = layoutHorizontalRowLength(compareListRow);
-//         //如果当前最大宽度加上当前卡片宽度大于cols，则放入下一行，
-//         //否则设置gridx
-//         if(ll+sorted[i].width > cols){
-//             rowCount++;
-//             sorted[i].gridy = rowCount;
-//         }else{
-//             sorted[i].gridy = rowCount;
-//             sorted[i].gridx = ll;
-//         }
-//         compareList.push(sorted[i]);
-//         needCompact[i] = sorted[i];
-//     }
-//     return needCompact;
-// }

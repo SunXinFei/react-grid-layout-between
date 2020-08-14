@@ -16,7 +16,7 @@ class MyContent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			compactType: 'vertical',//('vertical' | 'horizontal') = 'vertical'
+			compactType: 'vertical',//('vertical' | 'horizontal')
 			defaultLayout: {
 				containerWidth: 1200,
 				containerHeight: 300,
@@ -41,132 +41,13 @@ class MyContent extends Component {
 			groups: mockData
 		};
 	}
-	/*
-	 * 关于卡片在组内的操作
-	 */
-	/**
-	 * 拖拽中卡片在组上移动
-	 * @param {Object} dragItem 拖拽中的对象
-	 * @param {Object} hoverItem 拖拽中鼠标悬浮的对象
-	 * @param {Number} x 当前元素所在的网页的x轴位置，单位为px
-	 * @param {Number} y 当前元素所在的网页的y轴位置，单位为px
-	**/
-	moveCardInGroupItem = (dragItem, hoverItem, x, y) => {
-		let groups = this.state.groups;
-		let shadowCard = this.state.shadowCard;
-		const { margin, containerWidth, col, rowHeight } = this.state.layout;
-		//计算当前所在的网格坐标
-		const { gridX, gridY } = utils.calGridXY(x, y, shadowCard.width, margin, containerWidth, col, rowHeight);
-		if (gridX === shadowCard.gridx && gridY === shadowCard.gridy) {
-			return;
-		}
-		let groupIndex = hoverItem.index;
-		//先判断组内是否存在相同的卡片
-		const cardid = shadowCard.id;
-		// const isContain = utils.checkCardContainInGroup(groups[groupIndex], cardid);
-
-		// if (isContain) {
-		// 	return;
-		// }
-		//删除阴影的卡片
-		_.forEach(groups, (g, index) => {
-			_.remove(g.cards, (a) => {
-				return a.isShadow === true;
-			});
-		});
-
-		shadowCard = { ...shadowCard, gridx: gridX, gridy: gridY };
-		//添加阴影的卡片
-		groups[groupIndex].cards.push(shadowCard);
-		//获得当前分组内最新的layout布局
-		const newlayout = layoutCheck(
-			groups[groupIndex].cards,
-			shadowCard,
-			shadowCard.id,
-			shadowCard.id,
-			this.state.compactType
-		);
-		//压缩当前分组内的layout布局
-		let compactedLayout;
-		if (this.state.compactType === 'horizontal') {
-			compactedLayout = compactLayoutHorizontal(newlayout, this.state.layout.col, cardid);
-		} else if (this.state.compactType === 'vertical') {
-			compactedLayout = compactLayout(newlayout, shadowCard);
-		}
-		//更新group对象
-		groups[groupIndex].cards = compactedLayout;
-		this.updateShadowCard(shadowCard);
-		this.updateGroupList(groups);
-	};
-	/**
-	 * 释放卡片到分组
-	 * @param {Object} dragItem 拖拽的卡片对象
-	 * @param {Object} dropItem 释放的目标组对象
-	**/
-	onCardDropInGroupItem = (dragItem, dropItem) => {
-		let { groups } = this.state;
-		groups = _.cloneDeep(groups);
-		//将所有分组内的阴影卡片设为非阴影
-		utils.setPropertyValueForCards(groups, 'isShadow', false);
-		//目标组内重新横向压缩布局
-		_.forEach(groups, (g, targetGroupIndex) => {
-			if (this.state.compactType === 'horizontal') {
-				let compactedLayout = compactLayoutHorizontal(groups[targetGroupIndex].cards, this.state.layout.col);
-				groups[targetGroupIndex].cards = compactedLayout;
-			} else if (this.state.compactType === 'vertical') {
-				let compactedLayout = compactLayout(groups[targetGroupIndex].cards);
-				groups[targetGroupIndex].cards = compactedLayout;
-			}
-
-		});
-		this.updateGroupList(groups);
-		this.updateShadowCard({});
-	};
-	//初始化组
-	initGroupItem(groups) {
-		let itemDoms = [];
-		itemDoms = groups.map((g, i) => {
-			return (
-				<GroupItem
-					key={g.id}
-					id={g.id}
-					type={g.type}
-					index={i}
-					cards={g.cards}
-					length={groups.length}
-					groups = {groups}
-					moveCardInGroupItem={this.moveCardInGroupItem}
-					onDrop={this.onDrop}
-					onCardDropInGroupItem={this.onCardDropInGroupItem}
-					getCardsByGroupIndex={this.getCardsByGroupIndex}
-					layout={this.state.layout}
-					defaultLayout={this.state.defaultLayout}
-					updateShadowCard={this.updateShadowCard}
-					updateGroupList={this.updateGroupList}
-					handleLoad={this.handleLoad}
-				/>
-			);
-		});
-		return itemDoms;
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.handleLoad);
 	}
-	//
-	updateGroupList = (groups) => {
-		this.setState({ groups });
+	componentDidMount() {
+		window.addEventListener('resize', this.handleLoad);
 	}
-	//
-	updateShadowCard = (shadowCard) => {
-		this.setState({ shadowCard });
-	}
-	//
-	updateLayout = (layout) => {
-		this.setState({ layout });
-	}
-	//通过Group Index获取cards
-	getCardsByGroupIndex = (groupIndex) => {
-		let { groups } = this.state;
-		return groups[groupIndex].cards;
-	};
-	// 当页面加载完成，获得卡片容器宽度
+	// 当页面加载完成，获得卡片容器宽度，并自动排列卡片
 	handleLoad = () => {
 		if (!resizeWaiter) {
 			resizeWaiter = true;
@@ -206,28 +87,144 @@ class MyContent extends Component {
 				this.updateLayout(layout);
 			}, 500);
 		}
+	}
+	/*
+	 * 关于卡片在组内的操作
+	 */
+	/**
+	 * 拖拽中卡片在组上移动
+	 * @param {Object} dragItem 拖拽中的对象
+	 * @param {Object} hoverItem 拖拽中鼠标悬浮的对象
+	 * @param {Number} x 当前元素所在的网页的x轴位置，单位为px
+	 * @param {Number} y 当前元素所在的网页的y轴位置，单位为px
+	**/
+	moveCardInGroupItem = (dragItem, hoverItem, x, y) => {
+		let groups = this.state.groups;
+		let shadowCard = this.state.shadowCard;
+		const { margin, containerWidth, col, rowHeight } = this.state.layout;
+		//计算当前所在的网格坐标
+		const { gridX, gridY } = utils.calGridXY(x, y, shadowCard.width, margin, containerWidth, col, rowHeight);
+		if (gridX === shadowCard.gridx && gridY === shadowCard.gridy) {
+			return;
+		}
+		let groupIndex = hoverItem.index;
+		//先判断组内是否存在相同的卡片
+		// const cardid = shadowCard.id;
+		// const isContain = utils.checkCardContainInGroup(groups[groupIndex], cardid);
+		// if (isContain) {
+		// 	return;
+		// }
+
+		//删除阴影的卡片
+		_.forEach(groups, (g, index) => {
+			_.remove(g.cards, (a) => {
+				return a.isShadow === true;
+			});
+		});
+
+		shadowCard = { ...shadowCard, gridx: gridX, gridy: gridY };
+		//添加阴影的卡片
+		groups[groupIndex].cards.push(shadowCard);
+		//获得当前分组内最新的layout布局
+		const newlayout = layoutCheck(
+			groups[groupIndex].cards,
+			shadowCard,
+			shadowCard.id,
+			shadowCard.id,
+			this.state.compactType
+		);
+		//压缩当前分组内的layout布局
+		let compactedLayout;
+		if (this.state.compactType === 'horizontal') {
+			compactedLayout = compactLayoutHorizontal(newlayout, this.state.layout.col, shadowCard);
+		} else if (this.state.compactType === 'vertical') {
+			compactedLayout = compactLayout(newlayout, shadowCard);
+		}
+		//更新group对象
+		groups[groupIndex].cards = compactedLayout;
+		this.updateShadowCard(shadowCard);
+		this.updateGroupList(groups);
 	};
-	componentWillUnmount() {
-		window.removeEventListener('resize', this.handleLoad);
-		console.log('移除window中resize fn');
+	/**
+	 * 释放卡片到分组
+	 * @param {Object} dragItem 拖拽的卡片对象
+	 * @param {Object} dropItem 释放的目标组对象
+	**/
+	onCardDropInGroupItem = (dragItem, dropItem) => {
+		let { groups } = this.state;
+		groups = _.cloneDeep(groups);
+		//将所有分组内的阴影卡片设为非阴影
+		utils.setPropertyValueForCards(groups, 'isShadow', false);
+		//目标组内重新横向压缩布局，由于跨组，故须全部压缩
+		_.forEach(groups, (g, i) => {
+			if (this.state.compactType === 'horizontal') {
+				let compactedLayout = compactLayoutHorizontal(groups[i].cards, this.state.layout.col);
+				g.cards = compactedLayout;
+			} else if (this.state.compactType === 'vertical') {
+				let compactedLayout = compactLayout(groups[i].cards);
+				g.cards = compactedLayout;
+			}
+
+		});
+		this.updateGroupList(groups);
+		this.updateShadowCard({});
+	};
+	//初始化组
+	initGroupItem(groups) {
+		let itemDoms = [];
+		itemDoms = groups.map((g, i) => {
+			return (
+				<GroupItem
+					key={g.id}
+					id={g.id}
+					type={g.type}
+					index={i}
+					cards={g.cards}
+					length={groups.length}
+					groups = {groups}
+					moveCardInGroupItem={this.moveCardInGroupItem}
+					onDrop={this.onDrop}
+					onCardDropInGroupItem={this.onCardDropInGroupItem}
+					layout={this.state.layout}
+					defaultLayout={this.state.defaultLayout}
+					updateShadowCard={this.updateShadowCard}
+					updateGroupList={this.updateGroupList}
+					handleLoad={this.handleLoad}
+				/>
+			);
+		});
+		return itemDoms;
 	}
-	componentDidMount() {
-		window.addEventListener('resize', this.handleLoad);
+	//更新分组数据
+	updateGroupList = (groups) => {
+		this.setState({ groups });
 	}
+	//更新阴影卡片
+	updateShadowCard = (shadowCard) => {
+		this.setState({ shadowCard });
+	}
+	//更新布局
+	updateLayout = (layout) => {
+		this.setState({ layout });
+	}
+	//切换排列规则
 	changeCompactType = () =>{
 		const { compactType: oldCompactType } = this.state;
 		const compactType =
 			oldCompactType === "horizontal"
 				? "vertical"
 				: "horizontal";
-		this.setState({ compactType });
+		this.setState({ compactType },()=>{
+			this.onCardDropInGroupItem();
+		});
 	}
 	render() {
-		const { groups, compactType } = this.state;
+		const { groups, compactType, layout } = this.state;
 		return (
 			<div>
 				<CustomDragLayer/>
-				<button style={{ height:'30px'} } onClick={this.changeCompactType}>Change Compaction Type: <b>{compactType}</b></button>
+				<div style={{margin: '10px 10px 0'}}>Current Breakpoint: {layout.col} columns </div>
+				<button style={{ height:'30px', margin:'10px'} } onClick={this.changeCompactType}>Change Compaction Type: <b>{compactType}</b></button>
 				{this.initGroupItem(groups)}
 			</div>
 
