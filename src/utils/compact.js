@@ -89,19 +89,28 @@ const getSpaceArea = (finishedLayout, item, cols) => {
  * 需优化的地方：如果移动中的卡片坐标应该一直在一个区域范围内，而不应该任意位置拖拽
  * @param {Array} layout
  * @param {Int} cols
- * @param {Object} moveCard 移动中的元素
+ * @param {Object} movingCardID 移动中的元素id
  * @returns {Array} 最新layout布局
  */
-export const compactLayoutHorizontal = function (layout, cols, moveCard) {
+export const compactLayoutHorizontal = function (layout, cols, movingCardID) {
 	let sorted = sortLayout(layout);
 	const compareList = [];
-	const needCompact = new Array(layout.length);
-	const movingCardID = moveCard ? moveCard.id : null;
-	//获得当前组内的最大的y值，并赋值给移动卡片，防止group的Y值（高度）无限变大
-	if (moveCard) {
-		moveCard.gridy = Math.min(layoutBottom(sorted), moveCard.gridy);
+	const needCompact = Array(layout.length);
+	let arr = [];
+	let moveCard;
+	//进行坐标重置，移动中的卡片除外
+	for (let i = 0; i < sorted.length; i++) {
+		if (movingCardID === sorted[i].id) {
+			moveCard = sorted[i];
+			continue;
+		}
+		arr.push(sorted[i]);
 	}
-	//将非移动中的卡片进行坐标重置
+	//获得当前组内的最大的y值，并赋值给移动卡片，防止分组Y值无限变大
+	if (moveCard) {
+		moveCard.gridy = Math.min(layoutBottom(arr), moveCard.gridy);
+	}
+	//将非移动的卡片进行坐标重置
 	for (let i = 0; i < sorted.length; i++) {
 		if (movingCardID !== sorted[i].id) {
 			sorted[i].gridy = 0;

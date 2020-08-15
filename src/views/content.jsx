@@ -136,7 +136,7 @@ class MyContent extends Component {
 		//压缩当前分组内的layout布局
 		let compactedLayout;
 		if (this.state.compactType === 'horizontal') {
-			compactedLayout = compactLayoutHorizontal(newlayout, this.state.layout.col, shadowCard);
+			compactedLayout = compactLayoutHorizontal(newlayout, this.state.layout.col, shadowCard.id);
 		} else if (this.state.compactType === 'vertical') {
 			compactedLayout = compactLayout(newlayout, shadowCard);
 		}
