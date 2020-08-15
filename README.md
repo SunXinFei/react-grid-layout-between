@@ -5,6 +5,8 @@
 
 A draggable grid layout , can between two or more Layouts, for React. Based on [React-DnD](https://github.com/react-dnd/react-dnd).
 
+![picgif](https://user-images.githubusercontent.com/5847281/90307968-0387f780-df0e-11ea-9a19-8d6192ccbe67.gif)
+
 Live Demo : http://demo.sunxinfei.com/
 
 Features:
