@@ -28,6 +28,9 @@ const App = () => {
   }
   return (
     <div>
+      <div style={{margin: '10px'}}>
+        <a target="_blank" href="https://github.com/SunXinFei/react-grid-layout-between">View project on GitHub</a>
+      </div>
       <div style={{ margin: '10px 10px 0' }}>Current Breakpoint: {col} columns </div>
       <button style={{ height: '30px', margin: '10px' }} onClick={changeCompactType}>Change Compaction Type: <b>{compactType}</b></button>
       <GridLayout groups={mockData} compactType={compactType} layout={layout} onLayoutChange={onLayoutChange} />
